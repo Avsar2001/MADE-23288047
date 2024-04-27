@@ -3,7 +3,6 @@ pipeline AirportsPipeline {
     AirportsExtractor 
         -> AirportsFileInterpreter
         -> AirportsCSVInterpreter 
-        -> NameHeaderWriter
         -> AirportsTableInterpreter
         -> AirportsLoader;
 
@@ -19,12 +18,6 @@ pipeline AirportsPipeline {
     // Interprete into csv file (text_file -> csv_file)
     block AirportsCSVInterpreter oftype CSVInterpreter {
         delimiter: ";";
-    }
-
-    // Write Headers into table
-    block NameHeaderWriter oftype CellWriter {
-        at: range A1:A13;
-        write: ["Lfd. Nummer", "Name des Flughafens",	"Ort",	"Land",	"IATA",	"ICAO",	"Latitude",	"Longitude",	"Altitude",	"Zeitzone",	"DST",	"Zeitzonen-Datenbank",	"geo_punkt"];
     }
 
     // Define columns of table with datatypes
