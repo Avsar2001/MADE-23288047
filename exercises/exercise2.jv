@@ -1,0 +1,77 @@
+// pipeline to dump tree planning data (2023) into sqlite
+pipeline treesPipeline {
+    // The sequential pipeline blocks
+    TreesExtractor
+        -> TreesFileInterpreter
+        -> TreesCSVInterpreter
+        -> TreesTableInterpreter
+        -> TreesLoader;
+
+    // Extract remote trees data (null -> file)
+    block TreesExtractor oftype HttpExtractor {
+    url: "https://opendata.rhein-kreis-neuss.de/api/v2/catalog/datasets/stadt-neuss-herbstpflanzung-2023/exports/csv";
+    }
+
+    // Interprete into text file (file -> text_file)
+    block TreesFileInterpreter oftype TextFileInterpreter { }
+
+    // Interprete into csv file (text_file -> csv_file)
+    // * delimiter: ";" is used to separate the columns
+    block TreesCSVInterpreter oftype CSVInterpreter { 
+        delimiter: ";";
+    }
+
+    // Define columns of table with datatypes
+    block TreesTableInterpreter oftype TableInterpreter {
+        header: true;
+            columns: [
+                "lfd_nr" oftype integer,
+                "stadtteil" oftype StadtteilValueType,
+                "standort" oftype text,
+                "baumart_botanisch" oftype text,
+                "id" oftype IdType,
+                "baumfamilie" oftype text
+            ];
+    }
+
+    // Gets the "trees.sqlite" database file and the "trees" table 
+    // by loading a table into a SqlLite database.
+    block TreesLoader oftype SQLiteLoader { 
+            table: "trees";
+            file: "./trees.sqlite";
+    }
+}
+
+// Stadtteil Value Type
+valuetype StadtteilValueType oftype text {
+    constraints: [
+        StadtteilTextConstraint
+    ];
+}
+
+// Stadtteil Constraint
+// * Stadtteil should start with "Furth-"
+constraint StadtteilTextConstraint oftype RegexConstraint{
+    regex: /^Furth-/;
+}
+
+// Id Value Type
+valuetype IdType oftype text {
+    constraints: [
+        IdConstraint
+    ];
+}
+
+
+// Id Constraint
+// * geo_coordinate Format: {1,3}.{numbers}
+// * Format: {geo_coordinate_1}, {geo_coordinate_2}
+// * Ex. "123.123, 123.123"
+constraint IdConstraint oftype RegexConstraint{
+    regex: /^\d{1,3}\.\d{1,},\s*\d{1,3}\.\d{1,}$/;
+}
+
+
+
+
+
