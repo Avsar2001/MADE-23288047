@@ -1,0 +1,88 @@
+// pipeline to dump "Goods Transpoted by Train in Germany" Data into sqlite
+pipeline GoodsTransportedByTrainGermanyPipeline {
+    GoodsCSVExtractor 
+        -> GoodsTextFileInterpreter
+        -> GoodsCSVInterpreter 
+        -> GoodsMetadataRowsRemover 
+        -> GoodsHeaderWriter1
+        -> GoodsHeaderWriter2 
+        -> GoodsTableInterpreter 
+        -> GoodsSQLiteLoader;
+
+    block GoodsCSVExtractor oftype HttpExtractor {
+        url: "https://www-genesis.destatis.de/genesis/downloads/00/tables/46131-0014_00.csv";
+    }
+
+    // To interpret the text file with latin6 encoding
+    // German characters are encoded in 'latin6'
+    block GoodsTextFileInterpreter oftype TextFileInterpreter {
+        encoding: "latin6";
+    }
+
+    block GoodsCSVInterpreter oftype CSVInterpreter { 
+        delimiter: ";";
+    }
+
+    // To remove metadata rows from the input table
+    // Header (1 - 8) Footer (41337 - 41339)
+    block GoodsMetadataRowsRemover oftype RowDeleter {
+        delete: [row 1, row 2, row 3, row 4, row 5, row 6, row 7, row 8, row 41337, row 41338, row 41339]; 
+    }
+
+    // To rename data columns in the output table
+    block GoodsHeaderWriter1 oftype CellWriter {
+        at: range A1:E1;
+        write: ["year", "month", "goods_id", "goods_name", "goods_source"];
+    }
+
+    block GoodsHeaderWriter2 oftype CellWriter {
+        at: range AT1:AU1;
+        write: ["abroad", "total"];
+    }
+
+    // Filter only columns mentioned in the columns list
+    // Data types of the columns are also mentioned
+    block GoodsTableInterpreter oftype TableInterpreter {
+        header: false;
+        columns: [
+            "year" oftype PositiveIntegerType, 
+            "month" oftype GermanMonthType, 
+            "goods_id" oftype GoodsIdType, 
+            "goods_name" oftype text, 
+            "goods_source" oftype text, 
+            "abroad" oftype PositiveIntegerType, 
+            "total" oftype PositiveIntegerType
+        ];
+    }
+  
+    block GoodsSQLiteLoader oftype SQLiteLoader {
+        table: "goods";
+        file: "./goodsTransportedByTrain.sqlite";
+    }
+}
+
+// Value type & constraint for German months
+valuetype GermanMonthType oftype text {
+    constraints: [GermanMonthConstraint];
+}
+
+constraint GermanMonthConstraint on text:
+    value in ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+
+
+// Value type & constraint for Goods id
+valuetype GoodsIdType oftype text {
+    constraints: [GoodsIdPatternConstraint];
+}
+
+constraint GoodsIdPatternConstraint on text:
+    value matches /^NST7-[0-9A-Z]{3}$/;
+
+
+// Vaue type & constraint for positive integers
+valuetype PositiveIntegerType oftype integer {
+    constraints: [PositiveIntegerConstraint];
+}
+
+constraint PositiveIntegerConstraint on integer:
+    value > 0;
