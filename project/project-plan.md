@@ -44,7 +44,7 @@ This dataset contains detailed information on various countries, including the n
 
 <!-- List of work packages ordered sequentially, each pointing to an issue with more details. -->
 
-### 1. Data Preparation
+### 1. Data Preparation [#1] [issue1]
 
 ### 2. Climate Data Analysis
 
@@ -53,6 +53,8 @@ This dataset contains detailed information on various countries, including the n
 ### 4. Data Integration
 
 ### 5. Model Prediction
+
+[issue1]: https://github.com/Avsar2001/MADE-23288047/issues/5
 
 ### 6. Reporting
 
