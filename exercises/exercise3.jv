@@ -3,7 +3,7 @@ pipeline GoodsTransportedByTrainGermanyPipeline {
     GoodsCSVExtractor 
         -> GoodsTextFileInterpreter
         -> GoodsCSVInterpreter 
-        -> GoodsMetadataRowsRemover 
+        // -> GoodsMetadataRowsRemover 
         -> GoodsHeaderWriter1
         -> GoodsHeaderWriter2 
         -> GoodsTableInterpreter 
@@ -16,18 +16,19 @@ pipeline GoodsTransportedByTrainGermanyPipeline {
     // To interpret the text file with latin6 encoding
     // German characters are encoded in 'latin6'
     block GoodsTextFileInterpreter oftype TextFileInterpreter {
-        encoding: "latin6";
+        encoding: "latin3";
     }
 
     block GoodsCSVInterpreter oftype CSVInterpreter { 
         delimiter: ";";
+        enclosing: '';
     }
 
     // To remove metadata rows from the input table
-    // Header (1 - 8) Footer (41337 - 41339)
-    block GoodsMetadataRowsRemover oftype RowDeleter {
-        delete: [row 1, row 2, row 3, row 4, row 5, row 6, row 7, row 8, row 41337, row 41338, row 41339]; 
-    }
+    // Header (1 - 7) Footer (41337 - 41339)
+    // block GoodsMetadataRowsRemover oftype RowDeleter {
+    //     delete: [row 1, row 2, row 3, row 4, row 5, row 6, row 7, row 41339]; 
+    // }
 
     // To rename data columns in the output table
     block GoodsHeaderWriter1 oftype CellWriter {
@@ -66,8 +67,9 @@ valuetype GermanMonthType oftype text {
     constraints: [GermanMonthConstraint];
 }
 
-constraint GermanMonthConstraint on text:
-    value in ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+constraint GermanMonthConstraint  oftype RegexConstraint {
+    regex: /\b(Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember)\b/;
+}
 
 
 // Value type & constraint for Goods id
@@ -75,8 +77,9 @@ valuetype GoodsIdType oftype text {
     constraints: [GoodsIdPatternConstraint];
 }
 
-constraint GoodsIdPatternConstraint on text:
-    value matches /^NST7-[0-9A-Z]{3}$/;
+constraint GoodsIdPatternConstraint oftype RegexConstraint {
+    regex: /^NST7-[0-9A-Z]{3}$/;
+}
 
 
 // Vaue type & constraint for positive integers
@@ -84,5 +87,7 @@ valuetype PositiveIntegerType oftype integer {
     constraints: [PositiveIntegerConstraint];
 }
 
-constraint PositiveIntegerConstraint on integer:
-    value > 0;
+constraint PositiveIntegerConstraint oftype RangeConstraint {
+    lowerBound: 0;
+    lowerBoundInclusive: true;
+}
