@@ -3,7 +3,6 @@ pipeline GoodsTransportedByTrainGermanyPipeline {
     GoodsCSVExtractor 
         -> GoodsTextFileInterpreter
         -> GoodsCSVInterpreter 
-        // -> GoodsMetadataRowsRemover 
         -> GoodsHeaderWriter1
         -> GoodsHeaderWriter2 
         -> GoodsTableInterpreter 
@@ -11,6 +10,7 @@ pipeline GoodsTransportedByTrainGermanyPipeline {
 
     block GoodsCSVExtractor oftype HttpExtractor {
         url: "https://www-genesis.destatis.de/genesis/downloads/00/tables/46131-0014_00.csv";
+        retries: 3;
     }
 
     // To interpret the text file with latin6 encoding
@@ -23,12 +23,6 @@ pipeline GoodsTransportedByTrainGermanyPipeline {
         delimiter: ";";
         enclosing: '';
     }
-
-    // To remove metadata rows from the input table
-    // Header (1 - 7) Footer (41337 - 41339)
-    // block GoodsMetadataRowsRemover oftype RowDeleter {
-    //     delete: [row 1, row 2, row 3, row 4, row 5, row 6, row 7, row 41339]; 
-    // }
 
     // To rename data columns in the output table
     block GoodsHeaderWriter1 oftype CellWriter {
@@ -43,8 +37,9 @@ pipeline GoodsTransportedByTrainGermanyPipeline {
 
     // Filter only columns mentioned in the columns list
     // Data types of the columns are also mentioned
+    // metadata rows from the input table are removed (using filters in column definitions)
     block GoodsTableInterpreter oftype TableInterpreter {
-        header: false;
+        header: true;
         columns: [
             "year" oftype PositiveIntegerType, 
             "month" oftype GermanMonthType, 
