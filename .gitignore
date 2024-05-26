@@ -67,3 +67,4 @@ maildir
 kaggle.json
 *.csv
 *.sqlite
+.ipynb_checkpoints/
