@@ -9,7 +9,7 @@ export KAGGLE_CONFIG_DIR
 pip install --upgrade pip
 pip install -r ../requirements.txt
 
-# Run your Python test file
+# Run your Python test file 
 pytest ./test_data_collection_pipeline.py
 
 echo "pytest script has been completed"
