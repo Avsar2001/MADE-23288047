@@ -79,7 +79,7 @@ def download_dataset(kaggle_api):
     :return:
     """
     for key, val in DATASET.items():
-        kaggle_api.dataset_download_files(val['dataset_path'], path='./', unzip=True)
+        kaggle_api.dataset_download_files(val['dataset_path'], path='./project', unzip=True)
 
     return
 

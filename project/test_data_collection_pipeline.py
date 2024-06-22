@@ -6,6 +6,15 @@ import data_collection as dc
 
 @pytest.mark.dependency()
 def test_datasets_retrival():
+    """
+        download data from kaggle and store it into local sqlite database in '/data' directory with appropriate datatype
+        :return:
+        """
+    kaggle_api = dc.authenticate()
+
+    # download dataset in local storage
+    dc.download_dataset(kaggle_api)
+
     ds1 = dc.get_and_preprocess_forest_dataframe()
     assert isinstance(ds1, pd.DataFrame)
 
