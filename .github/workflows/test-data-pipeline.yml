@@ -27,4 +27,4 @@ jobs:
       # Execute test pipeline
       - name: CI of test data pipeline
         run: |
-          chmod +x ./project/tests.sh && cd ./ && ./tests.sh
+          chmod +x ./project/tests.sh && ./project/tests.sh
