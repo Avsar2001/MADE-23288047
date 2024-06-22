@@ -80,6 +80,7 @@ def download_dataset(kaggle_api):
     """
     for key, val in DATASET.items():
         kaggle_api.dataset_download_files(val['dataset_path'], path='./project', unzip=True)
+        print(f"Downloaded {key} dataset")
 
     return
 
