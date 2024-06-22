@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - project/**
 
 env:
   KAGGLE_USERNAME: $KAGGLE_USERNAME
@@ -24,4 +26,5 @@ jobs:
 
       # Execute test pipeline
       - name: CI of test data pipeline
-        run: cd ./main/project && ./tests.sh
+        run: |
+          chmod +x ./project/tests.sh && cd ./ && ./tests.sh
