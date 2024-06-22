@@ -91,7 +91,7 @@ def get_and_preprocess_forest_dataframe():
     :return:
     """
     # create forest dataframe from csv
-    forest_df = pd.read_csv(DATASET["WORLD_FOREST_DATA"]["file_name"])
+    forest_df = pd.read_csv(f"./project/{DATASET["WORLD_FOREST_DATA"]["file_name"]}")
 
     # preprocess steps for forest dataframe
     forest_df = forest_df.drop(columns=['Country Code'])
@@ -106,7 +106,7 @@ def get_and_preprocess_air_quality_dataframe():
     :return:
     """
     # create air quality dataframe from csv
-    air_quality_df = pd.read_csv(DATASET["WORLD_AIR_QUALITY_DATA"]["file_name"])
+    air_quality_df = pd.read_csv(f'./project/{DATASET["WORLD_AIR_QUALITY_DATA"]["file_name"]}')
 
     # preprocess steps for air quality dataframe
     air_quality_df = air_quality_df.drop(
@@ -125,7 +125,7 @@ def dump_dataset_to_db(dataframe, db_name, datatype):
     :return:
     """
 
-    db_engine = create_engine(f"sqlite:///../data/{db_name}.sqlite")
+    db_engine = create_engine(f"sqlite:///./data/{db_name}.sqlite")
     dataframe.to_sql(db_name, db_engine, index=False, if_exists='replace', dtype=datatype)
     return
 
@@ -157,4 +157,5 @@ def data_collector():
     return
 
 
-data_collector()
+if __name__ == "__main__":
+    data_collector()

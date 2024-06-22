@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Export kaggle.json to os env for Kaggle authentication
-KAGGLE_JSON_PATH="./kaggle.json"
+KAGGLE_JSON_PATH="./project/kaggle.json"
 KAGGLE_CONFIG_DIR=$(dirname "$KAGGLE_JSON_PATH")
 export KAGGLE_CONFIG_DIR
 
@@ -10,6 +10,6 @@ pip install --upgrade pip
 pip install -r ./requirements.txt
 
 # Run your Python test file 
-pytest ./test_data_collection_pipeline.py
+pytest ./project/test_data_collection_pipeline.py
 
 echo "pytest script has been completed"
