@@ -1,0 +1,28 @@
+name: Test Data Pipeline
+
+on:
+    push:
+        branches:
+            - main
+
+env:
+    KAGGLE_USERNAME: $KAGGLE_USERNAME
+    KAGGLE_KEY: $KAGGLE_KEY
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+                uses: actions/checkout@v3
+
+            # Install Python 3.12.0
+            - name: Set up Python version 3.12.0
+                uses: actions/setup-python@v4
+                with:
+                    python-version: 3.12.0
+
+            # Execute test pipeline
+            - name: CI of test data pipeline
+                run: cd ./main/project && ./tests.sh
