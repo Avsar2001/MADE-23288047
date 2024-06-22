@@ -1,0 +1,80 @@
+// pipeline to dump bus stops from a GTFS feed into a SQLite database
+pipeline BusStopsPipeline {
+
+    BusStopsHttpExtractor 
+		-> BusStopsArchiveInterpreter
+		-> BusStopsFilePicker
+		-> BusStopsTextFileInterpreter
+		-> BusStopsCSVInterpreter
+		-> BusStopsTableInterpreter
+		-> BusStopsSQLiteLoader;
+
+	block BusStopsHttpExtractor oftype HttpExtractor {
+		url: 'https://gtfs.rhoenenergie-bus.de/GTFS.zip';
+	}
+	
+    // To Extract the .zip file
+    // Creates a folder with the same name as the zip file
+	block BusStopsArchiveInterpreter oftype ArchiveInterpreter {
+        archiveType: "zip";
+    }
+
+	// To choose the file to be processed from the extracted folder
+	block BusStopsFilePicker oftype FilePicker {
+		path: '/stops.txt';
+	}
+
+    // To interpret the file as a text file
+	block BusStopsTextFileInterpreter oftype TextFileInterpreter {
+	}
+
+    // To interpret the text file as a CSV file
+    // Delimiter is iset to ','
+    // Enclosing character is set to '"'
+    block BusStopsCSVInterpreter oftype CSVInterpreter {
+        enclosing: '"';
+        delimiter: ',';
+    }
+
+    // Filter only columns mentioned in the columns list
+    // Data types of the columns are also mentioned
+	block BusStopsTableInterpreter oftype TableInterpreter {
+		header: true;
+		columns: [
+			'stop_id' oftype  integer,
+			'stop_name' oftype text,
+			'stop_lat' oftype CoordinateType,
+			'stop_lon' oftype CoordinateType,
+			'zone_id' oftype ZoneIDType,
+		];
+	}
+
+	// To load the data into a SQLite database
+    block BusStopsSQLiteLoader oftype SQLiteLoader {
+        table: "stops";
+        file: "./gtfs.sqlite";
+    }
+}
+
+// Value types and constraints for Zone ID
+// Used for 'zone_id' column - To only allow values of 1645
+valuetype ZoneIDType oftype integer {
+    constraints: [ ZoneConstraint];
+}	
+ 
+constraint ZoneConstraint on integer: value == 1645;
+
+// Value types and constraints for Coordinates
+// Used for 'stop_lat' and 'stop_lon' columns - To only allow values between -90 and 90
+valuetype CoordinateType oftype decimal {
+    constraints: [
+        CoordinateConstraint,
+    ];
+}	
+
+constraint CoordinateConstraint oftype RangeConstraint {
+    lowerBound: -90.0;
+    lowerBoundInclusive: true;
+    upperBound: 90.0;
+    upperBoundInclusive: true;
+}
