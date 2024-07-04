@@ -19,6 +19,7 @@ kaggle_json_path = os.path.join(current_root_directory, "project/.config")
 WORLD_FOREST_DATA = dict(
     data_uri="webdevbadger/world-forest-area",
     raw_data_file="forest_area_percent.csv",
+    pre_processed_data_file="world_forest_area_pre_processed_data.csv",
     unused_data_file="forest_area_km.csv",
     unused_db_cols=["Country Code"],
     db_name="world_forest_data",
@@ -62,6 +63,7 @@ WORLD_FOREST_DATA = dict(
 WORLD_AIR_QUALITY_DATA = dict(
     data_uri="adityaramachandran27/world-air-quality-index-by-city-and-coordinates",
     raw_data_file="AQI and Lat Long of Countries.csv",
+    pre_processed_data_file="world_air_quality_pre_processed_data.csv",
     unused_db_cols=[
         "City",
         "AQI Category",

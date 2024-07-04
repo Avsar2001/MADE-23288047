@@ -34,6 +34,19 @@ def transform_forest_dataframe():
         print(Fore.GREEN + f"Forest data transform Successful!")
         # print(Fore.YELLOW + forest_df.head())
 
+        # To save this file to pre-processed directory
+        forest_df.to_csv(
+            get_absolute_path(
+                f"data/pre-processed/{WORLD_FOREST_DATA['pre_processed_data_file']}"
+            ),
+            sep="\t",
+            encoding="utf-8",
+        )
+
+        print(
+            Fore.GREEN + f"Forest Area data export to pre-process directory Successful!"
+        )
+
         return forest_df
 
     except Exception as e:

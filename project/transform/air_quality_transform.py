@@ -35,8 +35,35 @@ def transform_air_quality_dataframe():
             columns=WORLD_AIR_QUALITY_DATA["unused_db_cols"]
         )
 
+        # Group by countries
+        air_quality_df = (
+            air_quality_df.groupby("Country")[
+                [
+                    "AQI Value",
+                    "CO AQI Value",
+                    "Ozone AQI Value",
+                    "NO2 AQI Value",
+                    "PM2.5 AQI Value",
+                ]
+            ]
+            .mean()
+            .reset_index()
+        )
+
         print(Fore.GREEN + f"Air quality data transform Successful!")
-        # print(Fore.YELLOW + air_quality_df.head())
+
+        # To save this file to pre-processed directory
+        air_quality_df.to_csv(
+            get_absolute_path(
+                f"data/pre-processed/{WORLD_AIR_QUALITY_DATA['pre_processed_data_file']}"
+            ),
+            sep="\t",
+            encoding="utf-8",
+        )
+
+        print(
+            Fore.GREEN + f"Air quality data export to pre-process directory Successful!"
+        )
 
         return air_quality_df
 
